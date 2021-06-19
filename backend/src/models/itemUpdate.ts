@@ -1,5 +1,5 @@
 export interface itemUpdate {
   name: string
-  price: number
-  quantity: number
+  price: string
+  quantity: string
 }

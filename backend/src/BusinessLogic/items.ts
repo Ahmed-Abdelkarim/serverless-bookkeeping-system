@@ -18,15 +18,15 @@ export async function getItems(event: APIGatewayProxyEvent) {
 export async function createItem(event: APIGatewayProxyEvent) {
   const userId = getUserId(event)
   const itemId = uuid.v4()
-  const createdAt = new Date(Date.now()).toISOString()
+  const timestamp = new Date(Date.now()).toISOString()
   const bucketName = storageAccess.getBucketName()
   const newItem: CreateItemRequest = JSON.parse(event.body)
   const createdItem = {
     userId: userId,
-    todoId: itemId,
-    createdAt,
+    itemId,
+    timestamp,
     ...newItem,
-    done: false,
+    quantity: "1",
     attachmentUrl: `https://${bucketName}.s3.amazonaws.com/${itemId}`
   }
   return await itemsTable.addItem(createdItem);

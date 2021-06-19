@@ -3,6 +3,6 @@
  */
 export interface UpdateItemRequest {
   name: string
-  price: number
-  quantity: number
+  price: string
+  quantity: string
 }

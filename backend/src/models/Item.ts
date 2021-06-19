@@ -3,7 +3,7 @@ export interface Item {
   itemId: string
   timestamp: string
   name: string
-  price: number
-  quantity: number
+  price: string
+  quantity: string
   attachmentUrl?: string
 }

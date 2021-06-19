@@ -33,7 +33,7 @@ export default class TableAccess {
   }
 
   async updateItem(itemId, userId, updatedItem) {
-    await this.docClient.update({
+    const result = await this.docClient.update({
       TableName: this.itemsTable,      
       Key: {
         userId,
@@ -52,6 +52,8 @@ export default class TableAccess {
       },
       ReturnValues:"UPDATED_NEW"    
     }).promise();
+    console.log(`Update statement has completed without error`, result);
+    return result.Attributes;
   }
   async getItem(itemId, userId) {
     const result = await this.docClient.get({

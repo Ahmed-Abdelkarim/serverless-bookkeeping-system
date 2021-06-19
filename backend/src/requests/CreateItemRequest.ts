@@ -3,5 +3,5 @@
  */
 export interface CreateItemRequest {
   name: string
-  price: number
+  price: string
 }

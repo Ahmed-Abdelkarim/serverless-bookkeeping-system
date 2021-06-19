@@ -8,12 +8,9 @@
         "minLength": 3
       },
       "price": {
-        "type": "number"
-      },
-      "quantity": {
-        "type": "number"
+        "type": "string"
       }
     },
-    "required": ["name", "price", "quantity"],
+    "required": ["name", "price"],
     "additionalProperties": true
   }

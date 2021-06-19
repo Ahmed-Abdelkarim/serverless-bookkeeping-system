@@ -56,14 +56,14 @@ functions:
     events:
       - http:
           method: get
-          path: items
+          path: items/{itemId}
           cors: true
           authorizer: Auth
     iamRoleStatements:
       - Effect: Allow
         Action:
-          - dynamodb:Get
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.ITEMS_TABLE}/index/${self:provider.environment.ITEMS_INDEX}
+          - dynamodb:GetItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.ITEMS_TABLE}
   
   CreateItem:
     handler: src/lambda/http/createItem.handler
