@@ -1,0 +1,213 @@
+service:
+  name: serverless-bookkeeping-system
+
+plugins:
+  - serverless-webpack
+  - serverless-iam-roles-per-function
+  - serverless-aws-documentation
+  - serverless-reqvalidator-plugin
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-2'}
+
+  environment:
+    ITEMS_TABLE: items-${self:provider.stage}
+    ITEMS_INDEX: items-Index
+    ITEMS_S3_BUCKET: abdelhafez-serverless-bookkeeper-${self:provider.stage}
+    SIGNED_URL_EXPIRATION: 300
+
+custom:
+  documentation:
+    api:
+      info:
+        version: 1.0.0
+        title: bookkeeper API
+        description: Serverless app for bookkeeping 
+    models:
+      - name: itemRequest
+        contentType: application/json
+        schema: ${file(src/models/create-item-request.json)} 
+
+functions:
+
+  Auth:
+    handler: src/lambda/auth/auth0Authorizer.handler
+
+  GetItems:
+    handler: src/lambda/http/getItems.handler
+    events:
+      - http:
+          method: get
+          path: items
+          cors: true
+          authorizer: Auth
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.ITEMS_TABLE}/index/${self:provider.environment.ITEMS_INDEX}
+
+  GetItem:
+    handler: src/lambda/http/getItem.handler
+    events:
+      - http:
+          method: get
+          path: items
+          cors: true
+          authorizer: Auth
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Get
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.ITEMS_TABLE}/index/${self:provider.environment.ITEMS_INDEX}
+  
+  CreateItem:
+    handler: src/lambda/http/createItem.handler
+    events:
+      - http:
+          method: post
+          path: items
+          cors: true
+          authorizer: Auth
+          reqValidatorName: RequestBodyValidator
+          documentation:
+            summary: Create a new item
+            description: Create a new item
+            requestModels:
+              'application/json': itemRequest
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.ITEMS_TABLE}
+  
+  UpdateItem:
+    handler: src/lambda/http/updateItem.handler
+    events:
+      - http:
+          method: patch
+          path: items/{itemId}
+          authorizer: Auth
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.ITEMS_TABLE}
+  
+  DeleteItem:
+    handler: src/lambda/http/deleteItem.handler
+    events:
+      - http:
+          method: delete
+          path: items/{itemId}
+          authorizer: Auth
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.ITEMS_TABLE}
+    
+  GenerateUploadUrl:
+    handler: src/lambda/http/generateUploadUrl.handler
+    events:
+      - http:
+          method: post
+          path: items/{itemId}/attachment
+          authorizer: Auth
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - s3:GetObject 
+          - s3:PutObject
+        Resource: 'arn:aws:s3:::${self:provider.environment.ITEMS_S3_BUCKET}/*'
+
+
+resources:
+  Resources:
+    GatewayResponseDefault4xx:
+      Type: AWS::ApiGateway::GatewayResponse
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+          gatewayresponse.header.Access-Control-Allow-Methods: "'GET,OPTIONS,POST'"
+        ResponseType: DEFAULT_4XX
+        RestApiId:
+          Ref: ApiGatewayRestApi
+
+
+    RequestBodyValidator:
+      Type: AWS::ApiGateway::RequestValidator
+      Properties:
+        Name: 'request-body-validator'
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        ValidateRequestBody: true
+        ValidateRequestParameters: false 
+
+    AttachmentsBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.environment.ITEMS_S3_BUCKET}
+        CorsConfiguration:
+          CorsRules:
+            - 
+              AllowedOrigins:
+                - '*'
+              AllowedHeaders:
+                - '*'
+              AllowedMethods:
+                - GET
+                - PUT
+                - POST
+                - DELETE
+                - HEAD
+              MaxAge: 3000
+    
+    BucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        PolicyDocument:
+          Id: MyPolicy
+          Version: "2012-10-17"
+          Statement:
+            - Sid: PublicReadForGetBucketObjects
+              Effect: Allow
+              Principal: '*'
+              Action: 's3:GetObject'
+              Resource: 'arn:aws:s3:::${self:provider.environment.ITEMS_S3_BUCKET}/*'
+        Bucket: !Ref AttachmentsBucket
+
+    ItemTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: timestamp
+            AttributeType: S
+          - AttributeName: itemId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+          - AttributeName: itemId
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:provider.environment.ITEMS_TABLE}
+        LocalSecondaryIndexes:
+          - IndexName: ${self:provider.environment.ITEMS_INDEX}
+            KeySchema:
+              - AttributeName: userId
+                KeyType: HASH
+              - AttributeName: timestamp
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL # What attributes will be copied to an index
