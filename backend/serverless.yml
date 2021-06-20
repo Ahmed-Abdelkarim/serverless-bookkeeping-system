@@ -17,6 +17,7 @@ provider:
   environment:
     ITEMS_TABLE: items-${self:provider.stage}
     ITEMS_INDEX: items-Index
+    tableName: serverless-bookkeeping-system-dev-WeboscketUserTable-J6TJMSFJP2XT
     ITEMS_S3_BUCKET: abdelhafez-serverless-bookkeeper-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
 
@@ -127,7 +128,43 @@ functions:
           - s3:GetObject 
           - s3:PutObject
         Resource: 'arn:aws:s3:::${self:provider.environment.ITEMS_S3_BUCKET}/*'
-
+  websocket-connect:
+    handler: src/lambda/websockets/connect.handler
+    events:
+      - websocket:
+          route: $connect
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.tableName}
+  websocket-disconnect:
+    handler: src/lambda/websockets/disconnect.handler
+    events:
+      - websocket:
+          route: $disconnect
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.tableName}
+    
+  websocket-default:
+    handler: src/lambda/websockets/default.handler
+    events:
+      - websocket:
+          route: $default
+  websocket-message:
+    handler: src/lambda/websockets/message.handler
+    events:
+      - websocket:
+          route: message
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:PutItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.tableName}
 
 resources:
   Resources:
@@ -184,6 +221,17 @@ resources:
               Action: 's3:GetObject'
               Resource: 'arn:aws:s3:::${self:provider.environment.ITEMS_S3_BUCKET}/*'
         Bucket: !Ref AttachmentsBucket
+    WeboscketUserTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.process.environment.tableName}
+        AttributeDefinitions:
+          - AttributeName: ID
+            AttributeType: S
+        KeySchema:
+          - AttributeName: ID
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
 
     ItemTable:
       Type: AWS::DynamoDB::Table

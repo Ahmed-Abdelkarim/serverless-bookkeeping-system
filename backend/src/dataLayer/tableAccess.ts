@@ -31,6 +31,20 @@ export default class TableAccess {
     }).promise();
     return newItem;
   }
+  async addSocket(data, tableName) {
+    if (!data.ID) {
+      throw Error('no ID on the data');
+  ``}
+    const res = await this.docClient.put({
+        TableName: tableName,
+        Item: data
+    }).promise();
+
+    if (!res) {
+      throw Error(`There was an error inserting ID of ${data.ID} in table ${tableName}`);
+  }
+    return data;
+  }
 
   async updateItem(itemId, userId, updatedItem) {
     const result = await this.docClient.update({
@@ -75,5 +89,31 @@ export default class TableAccess {
           userId
       }
     }).promise();
+  }
+  async deleteSocket(id, tableName){
+    await this.docClient.delete({
+      TableName: tableName,
+      Key: {
+        ID: id
+      }
+    }).promise();
+  }
+
+  async getRecords(ID, TableName) {
+    const params = {
+        TableName,
+        Key: {
+            ID,
+        },
+    };
+
+    const data = await this.docClient.get(params).promise();
+
+    if (!data || !data.Item) {
+        throw Error(`There was an error fetching the data for ID of ${ID} from ${TableName}`);
+    }
+    console.log(data);
+
+    return data.Item;
   }
 }
