@@ -1,15 +1,15 @@
 {
 	"info": {
-		"_postman_id": "d0700d24-79ec-487e-8403-b565bef7f8e0",
-		"name": "Udacity C4 Project",
+		"_postman_id": "962fe6ac-e116-4d7d-a259-e27daef4cb2d",
+		"name": "Udacity Capstone Project",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "TODOs",
+			"name": "Items",
 			"item": [
 				{
-					"name": "Get all todos",
+					"name": "Get all items",
 					"request": {
 						"method": "GET",
 						"header": [
@@ -19,30 +19,56 @@
 								"type": "text"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
-							"raw": "https://{{apiId}}.execute-api.us-east-1.amazonaws.com/dev/todos",
+							"raw": "https://{{apiId}}.execute-api.us-east-2.amazonaws.com/dev/items",
 							"protocol": "https",
 							"host": [
 								"{{apiId}}",
 								"execute-api",
-								"us-east-1",
+								"us-east-2",
 								"amazonaws",
 								"com"
 							],
 							"path": [
 								"dev",
-								"todos"
+								"items"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Create todo",
+					"name": "Get Item",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "https://{{apiId}}.execute-api.us-east-2.amazonaws.com/dev/items/9bbc8fb7-bb9b-45b4-bae5-94a33e9046e7",
+							"protocol": "https",
+							"host": [
+								"{{apiId}}",
+								"execute-api",
+								"us-east-2",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"items",
+								"9bbc8fb7-bb9b-45b4-bae5-94a33e9046e7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create item",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -60,30 +86,30 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"name\": \"Water flowers\",\n\t\"dueDate\": \"2019-06-11\"\n}"
+							"raw": "{\n\t\"name\": \"bread2\",\n\t\"price\": \"12\"\n}"
 						},
 						"url": {
-							"raw": "https://{{apiId}}.execute-api.us-east-1.amazonaws.com/dev/todos",
+							"raw": "https://{{apiId}}.execute-api.us-east-2.amazonaws.com/dev/items",
 							"protocol": "https",
 							"host": [
 								"{{apiId}}",
 								"execute-api",
-								"us-east-1",
+								"us-east-2",
 								"amazonaws",
 								"com"
 							],
 							"path": [
 								"dev",
-								"todos"
+								"items"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Update todo",
+					"name": "Update item",
 					"request": {
-						"method": "PUT",
+						"method": "PATCH",
 						"header": [
 							{
 								"key": "Content-Type",
@@ -99,29 +125,29 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"name\": \"Change the world\",\n\t\"dueDate\": \"2019-12-11\",\n\t\"done\": true\n}"
+							"raw": "{\n\t\"name\": \"breadx\",\n\t\"price\": \"321\",\n\t\"quantity\": \"321\"\n}"
 						},
 						"url": {
-							"raw": "https://{{apiId}}.execute-api.us-east-1.amazonaws.com/dev/todos/35dd600f-43c2-4649-903c-615e1586a26f",
+							"raw": "https://{{apiId}}.execute-api.us-east-2.amazonaws.com/dev/items/9bbc8fb7-bb9b-45b4-bae5-94a33e9046e7",
 							"protocol": "https",
 							"host": [
 								"{{apiId}}",
 								"execute-api",
-								"us-east-1",
+								"us-east-2",
 								"amazonaws",
 								"com"
 							],
 							"path": [
 								"dev",
-								"todos",
-								"35dd600f-43c2-4649-903c-615e1586a26f"
+								"items",
+								"9bbc8fb7-bb9b-45b4-bae5-94a33e9046e7"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Delete todo",
+					"name": "Delete item",
 					"request": {
 						"method": "DELETE",
 						"header": [
@@ -142,19 +168,19 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "https://{{apiId}}.execute-api.us-east-1.amazonaws.com/dev/todos/fe671583-4512-45f6-9475-4265c04362fb",
+							"raw": "https://{{apiId}}.execute-api.us-east-2.amazonaws.com/dev/items/fe7afd08-79fa-41bb-a356-c01f3befbeee",
 							"protocol": "https",
 							"host": [
 								"{{apiId}}",
 								"execute-api",
-								"us-east-1",
+								"us-east-2",
 								"amazonaws",
 								"com"
 							],
 							"path": [
 								"dev",
-								"todos",
-								"fe671583-4512-45f6-9475-4265c04362fb"
+								"items",
+								"fe7afd08-79fa-41bb-a356-c01f3befbeee"
 							]
 						}
 					},
@@ -176,19 +202,19 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "https://{{apiId}}.execute-api.us-east-1.amazonaws.com/dev/todos/3836b777-9bc4-4429-9b79-ba4e4f5f91c0/attachment",
+							"raw": "https://{{apiId}}.execute-api.us-east-2.amazonaws.com/dev/items/4ad186b6-4641-414b-9d64-ec7df3dad5b0/attachment",
 							"protocol": "https",
 							"host": [
 								"{{apiId}}",
 								"execute-api",
-								"us-east-1",
+								"us-east-2",
 								"amazonaws",
 								"com"
 							],
 							"path": [
 								"dev",
-								"todos",
-								"3836b777-9bc4-4429-9b79-ba4e4f5f91c0",
+								"items",
+								"4ad186b6-4641-414b-9d64-ec7df3dad5b0",
 								"attachment"
 							]
 						}
@@ -200,7 +226,6 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "ce2b42d4-8cc5-4f30-a6ed-e7f0f303c3fd",
 						"type": "text/javascript",
 						"exec": [
 							""
@@ -210,7 +235,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "efb16c49-3866-4241-97d1-360ad72736d8",
 						"type": "text/javascript",
 						"exec": [
 							""
@@ -224,7 +248,6 @@
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "2e83c0fe-6650-44d5-a90f-4c27ff720d83",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -234,7 +257,6 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "977c227e-2df3-42eb-9a48-ec25e2f7eeae",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -244,16 +266,12 @@
 	],
 	"variable": [
 		{
-			"id": "bf208e6b-f66d-4008-9366-dd541ff65425",
 			"key": "apiId",
-			"value": "",
-			"type": "string"
+			"value": ""
 		},
 		{
-			"id": "9bc6399a-d2bb-4f2d-9ffa-8480370d383c",
 			"key": "authToken",
-			"value": "",
-			"type": "string"
+			"value": ""
 		}
 	]
 }
