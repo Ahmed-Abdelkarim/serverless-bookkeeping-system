@@ -10,7 +10,7 @@ import { UpdateItemRequest } from '../requests/UpdateItemRequest';
 const ws = new websocketMessage()
 const itemsTable= new TableAccess()
 const storageAccess = new StorageAccess()
-const socketTableName = process.env.tableName;
+const socketTableName = process.env.TABLENAME;
 export async function getItems(event: APIGatewayProxyEvent) {
   const userId = getUserId(event)
   return await itemsTable.getAllItems(userId);
@@ -35,7 +35,6 @@ export async function createItem(event: APIGatewayProxyEvent) {
 export async function createConnection(event: APIGatewayProxyEvent) {
   const timestamp = new Date(Date.now()).toISOString()
   const { connectionId, domainName, stage } = event.requestContext;
-
   const data = {
       ID: connectionId,
       date: timestamp,
@@ -63,18 +62,17 @@ export async function message(event: APIGatewayProxyEvent) {
   const data = {
     ID,
     date,
-    messages,
-    domainName,
-    stage
+    messages
   }
 
   await itemsTable.addSocket(data, socketTableName);
-  const res = await ws.send({
-    domainName,
-    stage,
+  const message= 'This is a reply to your message'
+  const res = await ws.send(
     connectionID,
-    message: 'This is a reply to your message',
-  });
+    message,
+    domainName, 
+    stage
+  );
   console.log('sent message');
   
   return res;

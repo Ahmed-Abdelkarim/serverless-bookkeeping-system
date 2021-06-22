@@ -31,6 +31,12 @@ export default class TableAccess {
     }).promise();
     return newItem;
   }
+  async getAllConnections(tableName) {
+    const result = await this.docClient.scan({
+        TableName: tableName,
+    }).promise();
+    return result;
+  }
   async addSocket(data, tableName) {
     if (!data.ID) {
       throw Error('no ID on the data');
